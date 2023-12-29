@@ -277,15 +277,7 @@ void dev_convForward(float *out, float *in, float *wei, float *bias,
 
   //Grid size and Block size
   //dim3 blockSize (32, 32); //default
-  //dim3 blockSize (16, 16);
-  //dim3 blockSize (48, 48);
-  //dim3 blockSize (64, 64);
-  //dim3 blockSize (80, 80);
-  //dim3 blockSize (96, 96);
-  //dim3 blockSize (112, 112);
-  //dim3 blockSize (128, 128);
-  //dim3 blockSize (144, 144);
-  dim3 blockSize (256, 256);
+  dim3 blockSize (16, 16);
 
   dim3 gridSize((ch_out - 1) / blockSize.x + 1,
           (hw_out - 1) / blockSize.y + 1);
