@@ -276,8 +276,8 @@ void dev_convForward(float *out, float *in, float *wei, float *bias,
   CHECK(cudaMemcpy(d_bias, bias, n_bias, cudaMemcpyHostToDevice));
 
   //Grid size and Block size
-  //dim3 blockSize (32, 32); //default
-  dim3 blockSize (16, 16);
+  dim3 blockSize (32, 32); //default
+  //dim3 blockSize (16, 16);
 
   dim3 gridSize((ch_out - 1) / blockSize.x + 1,
           (hw_out - 1) / blockSize.y + 1);
