@@ -316,12 +316,12 @@ void dev_convForward(float *out, float *in, float *wei, float *bias,
   dim3 gridSize((ch_out - 1) / blockSize.x + 1,
           (hw_out - 1) / blockSize.y + 1);
 
-  im2col<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
-  //im2col_opti<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
+  //im2col<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
+  im2col_opti<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
-  convolution<<<gridSize, blockSize>>>(d_data, d_weight, d_output, d_bias, hw_out, hw_ker * ch_in, ch_out);
-  //convolution_kernel2<<<gridSize, blockSize>>>(d_data, d_weight, d_output, d_bias, hw_out, hw_ker * ch_in, ch_out);
+  //convolution<<<gridSize, blockSize>>>(d_data, d_weight, d_output, d_bias, hw_out, hw_ker * ch_in, ch_out);
+  convolution_kernel2<<<gridSize, blockSize>>>(d_data, d_weight, d_output, d_bias, hw_out, hw_ker * ch_in, ch_out);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
 
