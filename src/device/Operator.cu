@@ -137,7 +137,8 @@ void dev_matrixRowwiseAddVec(float *des, float *vec, int n, int m) {
 
 // input size: (height_in * width_in * channel_in)
 // data size: (hw_out * hw_kernel * channel_in)
-__global__ void im2col(float* input, float* data, int height_in, int width_in, int channel_in, int height_kernel, int width_kernel, 
+
+__global__ void im2col_opti(float* input, float* data, int height_in, int width_in, int channel_in, int height_kernel, int width_kernel, 
 			int height_out, int width_out, int channel_out, int stride)
 {	
 	int i = blockIdx.y * blockDim.y + threadIdx.y;   // row: 0 - hw_out
@@ -164,6 +165,45 @@ __global__ void im2col(float* input, float* data, int height_in, int width_in, i
 			{
 				int pick_idx = hw_in * j + cur_row * width_in + cur_col;
 				data[i * hw_kernel * channel_in + j * hw_kernel + k] = input[pick_idx];
+			}
+		}
+	}
+}
+
+__global__ void im2col(float* input, float* data, int height_in, int width_in, int channel_in, int height_kernel, int width_kernel, 
+			int height_out, int width_out, int channel_out, int stride)
+{	
+	int i = blockIdx.y * blockDim.y + threadIdx.y;   // row: 0 - hw_out
+	int j = blockIdx.x * blockDim.x + threadIdx.x;   // col: 0 - channel_out
+	
+	int hw_in = height_in * width_in;
+	int hw_kernel = height_kernel * width_kernel;
+	int hw_out = height_out * width_out;
+	
+	if (i < hw_out && j < channel_out)
+	{
+		if (threadIdx.x == 0)
+		{
+			for (int c = 0; c < channel_in; c++) 
+			{
+				int step_h = i / width_out;
+				int step_w = i % width_out;
+				int start_idx = step_h * width_in * stride + step_w * stride;  
+				for (int k = 0; k < hw_kernel; k ++) 
+				{
+					int cur_col = start_idx % width_in + k % width_kernel; 
+					int cur_row = start_idx / width_in + k / width_kernel;
+					if (cur_col < 0 || cur_col >= width_in || cur_row < 0 || cur_row >= height_in) 
+					{
+						data[i * hw_kernel * channel_in + c * hw_kernel + k] = 0;
+					}
+					else 
+					{
+						int pick_idx = hw_in * c + cur_row * width_in + cur_col;
+						// int pick_idx = hw_in * c + cur_col * height_in + cur_row;
+						data[i * hw_kernel * channel_in + c * hw_kernel + k] = input[pick_idx];
+					}
+				}	
 			}
 		}
 	}
@@ -277,6 +317,7 @@ void dev_convForward(float *out, float *in, float *wei, float *bias,
           (hw_out - 1) / blockSize.y + 1);
 
   im2col<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
+  //im2col_opti<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
   convolution<<<gridSize, blockSize>>>(d_data, d_weight, d_output, d_bias, hw_out, hw_ker * ch_in, ch_out);
