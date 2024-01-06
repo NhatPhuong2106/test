@@ -281,9 +281,12 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
     
     // Make sure all threads have finished loading data into shared memory
     __syncthreads();
-    
+
+	int hw_in = height_in * width_in;
+	int hw_kernel = height_kernel * width_kernel;
+	int hw_out = height_out * width_out;
     // Apply im2col on the tile
-    if (i < height_out * width_out && j < channel_in)
+    if (i < hw_out && j < channel_in)
 	{
 		int step_h = i / width_out;
 		int step_w = i % width_out;
