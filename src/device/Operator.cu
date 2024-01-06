@@ -287,8 +287,8 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 	// Apply im2col on the tile
 	if (i < hw_out && j < channel_in)
 	{
-		int step_h = i / width_out;
-		int step_w = i % width_out;
+		int step_h = threadIdx.y / width_out;
+		int step_w = threadIdx.y % width_out;
 		int start_idx = step_h * width_in * stride + step_w * stride;  
 		for (int k = 0; k < hw_kernel; k ++) 
 		{
