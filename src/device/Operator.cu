@@ -231,7 +231,7 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
     	int tileCol = threadIdx.y % width_out + RADIUS;
     	int tileChn = threadIdx.x;
 	
-	if(i < hw_out && j < channel_out)
+	if(i < hw_out && j < channel_out && tileChn < channel_in)
 	{
 		tile[tileChn][tileRow][tileCol] = input[tileChn * height_in * width_in + row * width_in + col];
 		
