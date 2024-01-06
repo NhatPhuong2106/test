@@ -234,29 +234,24 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 	if(i < hw_out && j < channel_out)
 	{
 		tile[tileChn][tileRow][tileCol] = input[tileChn * height_in * width_in + row * width_in + col];
-		//printf("if 1\n");
 		
 		// Load additional data into the padding border of the tile
 		if(threadIdx.y / width_out < RADIUS)
 		{
 			// Load top padding
 			tile[tileChn][tileRow - RADIUS][tileCol] = input[tileChn * height_in * width_in + (row - RADIUS) * width_in + col];
-			//printf("if 2.1\n");
 
 			// Load bottom padding
 			tile[tileChn][tileRow + height_out][tileCol] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col];
-			//printf("if 2.2\n");
 		}
 		
 		if(threadIdx.y % width_out < RADIUS)
 		{
 			// Load left padding
 			tile[tileChn][tileRow][tileCol - RADIUS] = input[tileChn * height_in * width_in + row * width_in + col - RADIUS];
-			//printf("if 3.1\n");
 		
 			// Load right padding
 			tile[tileChn][tileRow][tileCol + width_out] = input[tileChn * height_in * width_in + row * width_in + col + width_out];
-			//printf("if 3.2\n");
 		}
 		
 		// Load additional data into the padding corners of the tile
@@ -264,16 +259,15 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 		{
 			// Load top-left corner padding
 			tile[tileChn][tileRow - RADIUS][tileCol - RADIUS] = input[tileChn * height_in * width_in + (row - RADIUS) * width_in + col - RADIUS];
-			//printf("if 4.1\n");
+			
 			// Load top-right corner padding
 			tile[tileChn][tileRow - RADIUS][tileCol + width_out] = input[tileChn * height_in * width_in + (row - RADIUS) * width_in + col + width_out];
-			//printf("if 4.2\n");
+			
 			// Load bottom-left corner padding
 			tile[tileChn][tileRow + height_out][tileCol - RADIUS] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col - RADIUS];
-			//printf("if 4.3\n");
+			
 			// Load bottom-right corner padding
 			tile[tileChn][tileRow + height_out][tileCol + width_out] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col + width_out];
-			//printf("if 4.4\n");
 		}
 	
 	// Make sure all threads have finished loading data into shared memory
@@ -288,18 +282,14 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 		{
 			int cur_col = start_idx % width_in + k % width_kernel; 
 			int cur_row = start_idx / width_in + k / width_kernel;
-			//int cur_col = threadIdx.y % width_out + k % width_kernel; 
-			//int cur_row = threadIdx.y / width_out + k / width_kernel;
 			if (cur_col < 0 || cur_col >= width_in || cur_row < 0 || cur_row >= height_in) 
 			{
-				data[threadIdx.y * hw_kernel * channel_in + tileChn * hw_kernel + k] = 0;
-				//printf("if 5\n");
+				data[i * hw_kernel * channel_in + tileChn * hw_kernel + k] = 0;;
 			}
 			else 
 			{
 				//int pick_idx = hw_in * c + cur_row * width_in + cur_col;
-				data[threadIdx.y * hw_kernel * channel_in + tileChn * hw_kernel + k] = tile[tileChn][cur_row][cur_col];
-				//printf("if 5\n");
+				data[i * hw_kernel * channel_in + tileChn * hw_kernel + k] = tile[tileChn][cur_row][cur_col];
 			}
 		}
 	}
