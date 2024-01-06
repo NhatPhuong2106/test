@@ -281,15 +281,15 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 	
 	// Apply im2col on the tile
 	
-		//int step_h = threadIdx.y / width_out;
-		//int step_w = threadIdx.y % width_out;
-		//int start_idx = step_h * width_in * stride + step_w * stride;  
+		int step_h = threadIdx.y / width_out;
+		int step_w = threadIdx.y % width_out;
+		int start_idx = step_h * width_in * stride + step_w * stride;  
 		for (int k = 0; k < hw_kernel; k ++) 
 		{
-			//int cur_col = start_idx % width_in + k % width_kernel; 
-			//int cur_row = start_idx / width_in + k / width_kernel;
-			int cur_col = threadIdx.y % width_out + k % width_kernel; 
-			int cur_row = threadIdx.y / width_out + k / width_kernel;
+			int cur_col = start_idx % width_in + k % width_kernel; 
+			int cur_row = start_idx / width_in + k / width_kernel;
+			//int cur_col = threadIdx.y % width_out + k % width_kernel; 
+			//int cur_row = threadIdx.y / width_out + k / width_kernel;
 			if (cur_col < 0 || cur_col >= width_in || cur_row < 0 || cur_row >= height_in) 
 			{
 				data[threadIdx.y * hw_kernel * channel_in + tileChn * hw_kernel + k] = 0;
