@@ -225,8 +225,8 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
     int col = i % width_out + RADIUS;
     
     // Shared memory for the input tile
-    //__shared__ float tile[TILE_WIDTH + KERNEL_WIDTH - 1][TILE_WIDTH + KERNEL_WIDTH - 1];
-    extern __shared__ float tile[][];
+    //__shared__ float tile[TILE_WIDTH][TILE_WIDTH + KERNEL_WIDTH - 1];
+    extern __shared__ float tile[TILE_WIDTH][];
     
     // Load data into the shared memory tile
     int tileRow = threadIdx.y / width_out + RADIUS;
@@ -421,8 +421,8 @@ void dev_convForward(float *out, float *in, float *wei, float *bias,
 
   //im2col<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   //im2col_opti<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
-  size_t smem = (ch_in * h_in * w_in + TILE_WIDTH + h_ker - 1) * (ch_in * h_in * w_in + TILE_WIDTH + w_ker - 1) * sizeof(float);
-  im2col_share<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
+  size_t smem = (ch_in * h_in * w_in * w_ker) * sizeof(float);
+  im2col_share<<<gridSize, blockSize, smem>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
 
