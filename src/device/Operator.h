@@ -8,7 +8,7 @@
 #define BLOCK_HEIGHT 32
 
 #define TILE_WIDTH 16
-#define KERNEL_WIDTH 5
+#define HW_KERNEL 25
 #define CHANNEL_IN 6
 #define HW_IN 1024
 
