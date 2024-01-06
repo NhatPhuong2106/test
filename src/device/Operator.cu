@@ -209,9 +209,6 @@ __global__ void im2col(float* input, float* data, int height_in, int width_in, i
 	}
 }
 
-#define TILE_WIDTH 16
-#define KERNEL_WIDTH 5
-
 __global__ void im2col_share (float* input, float* data, int height_in, int width_in, int channel_in, int height_kernel, int width_kernel, 
 			int height_out, int width_out, int channel_out, int stride)
 {
