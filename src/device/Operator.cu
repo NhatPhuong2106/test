@@ -214,97 +214,96 @@ __global__ void im2col(float* input, float* data, int height_in, int width_in, i
 __global__ void im2col_share (float* input, float* data, int height_in, int width_in, int channel_in, int height_kernel, int width_kernel, 
 			int height_out, int width_out, int channel_out, int stride)
 {
-    // Calculate thread indices
-	int radius = width_kernel / 2;
+     // Calculate thread indices
+	int RADIUS = width_kernel / 2;
 	int i = threadIdx.y + blockIdx.y * blockDim.y;
     int j = threadIdx.x + blockIdx.x * blockDim.x;
 	
-    int row = i / width_out + radius;
-    int col = i % width_out + radius;
+    int row = i / width_out + RADIUS;
+    int col = i % width_out + RADIUS;
     
     // Shared memory for the input tile
-    __shared__ float tile[channel_in][TILE_WIDTH + height_kernel - 1][TILE_WIDTH + width_kernel - 1];
-   //extern __shared__ float tile[][][];
+    _shared_ float tile[TILE_WIDTH + width_kernel - 1][TILE_WIDTH + width_kernel - 1];
     
     // Load data into the shared memory tile
-    int tileRow = threadIdx.y / width_out + radius;
-    int tileCol = threadIdx.y % width_out + radius;
-    
-    if(row < height_out && col < width_out && j < channel_in)
-    {
-        tile[j][tileRow][tileCol] = input[j * height_in * width_in + row * width_in + col];
-        
-        // Load additional data into the padding border of the tile
-        if(threadIdx.y / width_out < radius)
-        {
-            // Load top padding
-            tile[j][tileRow - radius][tileCol] = input[j * height_in * width_in + (row - radius) * width_in + col];
-        }
-        else if(threadIdx.y / width_out >= height_out - radius)
-        {
-            // Load bottom padding
-            tile[j][tileRow + radius][tileCol] = input[j * height_in * width_in + (row + radius) * width_in + col];
-        }
-        
-        if(threadIdx.y % width_out < radius)
-        {
-            // Load left padding
-            tile[j][tileRow][tileCol - radius] = input[j * height_in * width_in + row * width_in + col - radius];
-        }
-        else if(threadIdx.y % width_out >= width_out - radius)
-        {
-            // Load right padding
-            tile[j][tileRow][tileCol + radius] = input[j * height_in * width_in + row * width_in + col + radius];
-        }
-        
-        // Load additional data into the padding corners of the tile
-        if(threadIdx.y / width_out < radius && threadIdx.y % width_out < radius)
-        {
-            // Load top-left corner padding
-            tile[j][tileRow - radius][tileCol - radius] = input[j * height_in * width_in + (row - radius) * width_in + col - radius];
-        }
-        else if(threadIdx.y / width_out < radius && threadIdx.y % width_out >= width_out - radius)
-        {
-            // Load top-right corner padding
-            tile[j][tileRow - radius][tileCol + radius] = input[j * height_in * width_in + (row - radius) * width_in + col + radius];
-        }
-        else if(threadIdx.y / width_out >= height_out - radius && threadIdx.y % width_out < radius)
-        {
-            // Load bottom-left corner padding
-            tile[j][tileRow + radius][tileCol - radius] = input[j * height_in * width_in + (row + radius) * width_in + col - radius];
-        }
-        else if(threadIdx.y / width_out >= height_out - radius && threadIdx.y % width_out >= width_out - radius)
-        {
-            // Load bottom-right corner padding
-            tile[j][tileRow + radius][tileCol + radius] = input[j * height_in * width_in + (row + radius) * width_in + col + radius];
-        }
-    }
-    
-    // Make sure all threads have finished loading data into shared memory
-    __syncthreads();
-
-	int hw_in = height_in * width_in;
-	int hw_kernel = height_kernel * width_kernel;
-	int hw_out = height_out * width_out;
-    // Apply im2col on the tile
-    if (i < hw_out && j < channel_in)
+    int tileRow = threadIdx.y / width_out + RADIUS;
+    int tileCol = threadIdx.y % width_out + RADIUS;
+	
+	for (int c = 0; c < channel_in; c++)
 	{
-		int step_h = i / width_out;
-		int step_w = i % width_out;
-		int start_idx = step_h * width_in * stride + step_w * stride;  
-		for (int k = 0; k < hw_kernel; k ++) 
+		if(row < height_out && col < width_out)
 		{
-			int cur_col = start_idx % width_in + k % width_kernel; 
-			int cur_row = start_idx / width_in + k / width_kernel;
-			if (cur_col < 0 || cur_col >= width_in || cur_row < 0 || cur_row >= height_in) 
+			tile[tileRow][tileCol] = input[c * height_in * width_in + row * width_in + col];
+			
+			// Load additional data into the padding border of the tile
+			if(threadIdx.y / width_out < RADIUS)
 			{
-				data[i * hw_kernel * channel_in + j * hw_kernel + k] = 0;
+				// Load top padding
+				tile[tileRow - RADIUS][tileCol] = input[c * height_in * width_in + (row - RADIUS) * width_in + col];
 			}
-			else 
+			else if(threadIdx.y / width_out >= height_out - RADIUS)
 			{
-				//int pick_idx = hw_in * j + cur_row * width_in + cur_col;
-				data[i * hw_kernel * channel_in + j * hw_kernel + k] = tile[j][cur_row][cur_col];
+				// Load bottom padding
+				tile[tileRow + RADIUS][tileCol] = input[c * height_in * width_in + (row + RADIUS) * width_in + col];
 			}
+			
+			if(threadIdx.y % width_out < RADIUS)
+			{
+				// Load left padding
+				tile[tileRow][tileCol - RADIUS] = input[c * height_in * width_in + row * width_in + col - RADIUS];
+			}
+			else if(threadIdx.y % width_out >= width_out - RADIUS)
+			{
+				// Load right padding
+				tile[tileRow][tileCol + RADIUS] = input[c * height_in * width_in + row * width_in + col + RADIUS];
+			}
+			
+			// Load additional data into the padding corners of the tile
+			if(threadIdx.y / width_out < RADIUS && threadIdx.y % width_out < RADIUS)
+			{
+				// Load top-left corner padding
+				tile[tileRow - RADIUS][tileCol - RADIUS] = input[c * height_in * width_in + (row - RADIUS) * width_in + col - RADIUS];
+			}
+			else if(threadIdx.y / width_out < RADIUS && threadIdx.y % width_out >= width_out - RADIUS)
+			{
+				// Load top-right corner padding
+				tile[tileRow - RADIUS][tileCol + RADIUS] = input[c * height_in * width_in + (row - RADIUS) * width_in + col + RADIUS];
+			}
+			else if(threadIdx.y / width_out >= height_out - RADIUS && threadIdx.y % width_out < RADIUS)
+			{
+				// Load bottom-left corner padding
+				tile[tileRow + RADIUS][tileCol - RADIUS] = input[c * height_in * width_in + (row + RADIUS) * width_in + col - RADIUS];
+			}
+			else if(threadIdx.y / width_out >= height_out - RADIUS && threadIdx.y % width_out >= width_out - RADIUS)
+			{
+				// Load bottom-right corner padding
+				tile[tileRow + RADIUS][tileCol + RADIUS] = input[c * height_in * width_in + (row + RADIUS) * width_in + col + RADIUS];
+			}
+		}
+		
+		// Make sure all threads have finished loading data into shared memory
+		__syncthreads();
+		
+		// Apply im2col on the tile
+		if (i < hw_out && j < channel_out)
+		{
+			int step_h = i / width_out;
+			int step_w = i % width_out;
+			int start_idx = step_h * width_in * stride + step_w * stride;  
+			for (int k = 0; k < hw_kernel; k ++) 
+			{
+				int cur_col = start_idx % width_in + k % width_kernel; 
+				int cur_row = start_idx / width_in + k / width_kernel;
+				if (cur_col < 0 || cur_col >= width_in || cur_row < 0 || cur_row >= height_in) 
+				{
+					data[i * hw_kernel * channel_in + c * hw_kernel + k] = 0;
+				}
+				else 
+				{
+					//int pick_idx = hw_in * c + cur_row * width_in + cur_col;
+					data[i * hw_kernel * channel_in + c * hw_kernel + k] = tile[cur_row][cur_col];
+				}
+			} 
 		}
 	}
 }
