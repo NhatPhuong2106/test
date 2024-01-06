@@ -223,7 +223,7 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
     int col = i % width_out + radius;
     
     // Shared memory for the input tile
-    __shared__ float tile[TILE_WIDTH][TILE_WIDTH + width_kernel - 1][TILE_WIDTH + width_kernel - 1];
+    extern __shared__ float tile[][][];
     
     // Load data into the shared memory tile
     int tileRow = threadIdx.y / width_out + radius;
@@ -237,12 +237,12 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
         if(threadIdx.y / width_out < radius)
         {
             // Load top padding
-            tile[j][tileRow - radius][tileCol] = input[j * height_in * width_in + (row - RADIUS) * width_in + col];
+            tile[j][tileRow - radius][tileCol] = input[j * height_in * width_in + (row - radius) * width_in + col];
         }
         else if(threadIdx.y / width_out >= height_out - radius)
         {
             // Load bottom padding
-            tile[j][tileRow + radius][tileCol] = input[j * height_in * width_in + (row + RADIUS) * width_in + col];
+            tile[j][tileRow + radius][tileCol] = input[j * height_in * width_in + (row + radius) * width_in + col];
         }
         
         if(threadIdx.y % width_out < radius)
@@ -283,7 +283,7 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
     __syncthreads();
     
     // Apply im2col on the tile
-    if (i < hw_out && j < channel_in)
+    if (i < height_out * width_out && j < channel_in)
 	{
 		int step_h = i / width_out;
 		int step_w = i % width_out;
@@ -415,7 +415,7 @@ void dev_convForward(float *out, float *in, float *wei, float *bias,
 
   //im2col<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   //im2col_opti<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
-  //size_t smem = TILE_WIDTH * (TILE_WIDTH + h_ker - 1) * (TILE_WIDTH + w_ker - 1) * sizeof(int);
+  size_t smem = TILE_WIDTH * (TILE_WIDTH + h_ker - 1) * (TILE_WIDTH + w_ker - 1) * sizeof(int);
   im2col_share<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
