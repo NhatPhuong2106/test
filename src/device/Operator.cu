@@ -292,13 +292,13 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 			int cur_row = threadIdx.y / width_out + k / width_kernel;
 			if (cur_col < 0 || cur_col >= width_in || cur_row < 0 || cur_row >= height_in) 
 			{
-				data[i * hw_kernel * channel_in + tileChn * hw_kernel + k] = 0;
+				data[threadIdx.y * hw_kernel * channel_in + tileChn * hw_kernel + k] = 0;
 				//printf("if 5\n");
 			}
 			else 
 			{
 				//int pick_idx = hw_in * c + cur_row * width_in + cur_col;
-				data[i * hw_kernel * channel_in + tileChn * hw_kernel + k] = tile[tileChn][cur_row][cur_col];
+				data[threadIdx.y * hw_kernel * channel_in + tileChn * hw_kernel + k] = tile[tileChn][cur_row][cur_col];
 				//printf("if 5\n");
 			}
 		}
