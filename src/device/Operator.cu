@@ -218,18 +218,18 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
      // Calculate thread indices
 	int RADIUS = width_kernel / 2;
 	int i = threadIdx.y + blockIdx.y * blockDim.y;
-    int j = threadIdx.x + blockIdx.x * blockDim.x;
+    	int j = threadIdx.x + blockIdx.x * blockDim.x;
 	
-    int row = i / width_out + RADIUS;
-    int col = i % width_out + RADIUS;
+    	int row = i / width_out + RADIUS;
+    	int col = i % width_out + RADIUS;
     
     // Shared memory for the input tile
-    __shared__ float tile[CHANNEL_IN][TILE_WIDTH + WIDTH_KERNEL - 1][TILE_WIDTH + WIDTH_KERNEL - 1];
+    	__shared__ float tile[CHANNEL_IN][TILE_WIDTH + WIDTH_KERNEL - 1][TILE_WIDTH + WIDTH_KERNEL - 1];
     
     // Load data into the shared memory tile
-    int tileRow = threadIdx.y / width_out + RADIUS;
-    int tileCol = threadIdx.y % width_out + RADIUS;
-    int tileChn = threadIdx.x;
+    	int tileRow = threadIdx.y / width_out + RADIUS;
+    	int tileCol = threadIdx.y % width_out + RADIUS;
+    	int tileChn = threadIdx.x;
 	
 	if(i < hw_out && j < channel_out)
 	{
@@ -277,7 +277,7 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 		}
 	
 	// Make sure all threads have finished loading data into shared memory
-	__syncthreads();
+		__syncthreads();
 	
 	// Apply im2col on the tile
 	
