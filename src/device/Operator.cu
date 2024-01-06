@@ -212,7 +212,6 @@ __global__ void im2col(float* input, float* data, int height_in, int width_in, i
 __global__ void im2col_share (float* input, float* data, int height_in, int width_in, int channel_in, int height_kernel, int width_kernel, 
 			int height_out, int width_out, int channel_out, int stride)
 {
-	int hw_in = height_in * width_in;
 	int hw_kernel = height_kernel * width_kernel;
 	int hw_out = height_out * width_out;
 
