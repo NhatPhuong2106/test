@@ -244,7 +244,7 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 			//printf("if 2.1\n");
 
 			// Load bottom padding
-			tile[tileChn][tileRow + height_out + RADIUS][tileCol] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col];
+			tile[tileChn][tileRow + height_out][tileCol] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col];
 			//printf("if 2.2\n");
 		}
 		
@@ -255,7 +255,7 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 			//printf("if 3.1\n");
 		
 			// Load right padding
-			tile[tileChn][tileRow][tileCol + width_out + RADIUS] = input[tileChn * height_in * width_in + row * width_in + col + width_out];
+			tile[tileChn][tileRow][tileCol + width_out] = input[tileChn * height_in * width_in + row * width_in + col + width_out];
 			//printf("if 3.2\n");
 		}
 		
@@ -266,13 +266,13 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 			tile[tileChn][tileRow - RADIUS][tileCol - RADIUS] = input[tileChn * height_in * width_in + (row - RADIUS) * width_in + col - RADIUS];
 			//printf("if 4.1\n");
 			// Load top-right corner padding
-			tile[tileChn][tileRow - RADIUS][tileCol + width_out + RADIUS] = input[tileChn * height_in * width_in + (row - RADIUS) * width_in + col + width_out];
+			tile[tileChn][tileRow - RADIUS][tileCol + width_out] = input[tileChn * height_in * width_in + (row - RADIUS) * width_in + col + width_out];
 			//printf("if 4.2\n");
 			// Load bottom-left corner padding
-			tile[tileChn][tileRow + height_out + RADIUS][tileCol - RADIUS] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col - RADIUS];
+			tile[tileChn][tileRow + height_out][tileCol - RADIUS] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col - RADIUS];
 			//printf("if 4.3\n");
 			// Load bottom-right corner padding
-			tile[tileChn][tileRow + height_out + RADIUS][tileCol + width_out + RADIUS] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col + width_out];
+			tile[tileChn][tileRow + height_out][tileCol + width_out] = input[tileChn * height_in * width_in + (row + height_out) * width_in + col + width_out];
 			//printf("if 4.4\n");
 		}
 	
