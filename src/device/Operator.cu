@@ -233,7 +233,7 @@ __global__ void im2col_share (float* input, float* data, int height_in, int widt
 	
 	if(i < hw_out && j < channel_in && tileChn < channel_in)
 	{
-		tile[tileChn][tileRow][tileCol] = input[tileChn * height_in * width_in + row * width_in + col];
+		tile[tileChn][tileRow][tileCol] = input[j * height_in * width_in + row * width_in + col];
 		
 		// Load additional data into the padding border of the tile
 		if(threadIdx.y / width_out < RADIUS)
