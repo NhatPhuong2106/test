@@ -148,23 +148,17 @@ int main(int argc, char *argv[]) {
     std::cout << "Test acc: " << acc << std::endl;
     std::cout << "Time: " << ts << " ms" << std::endl;
     //
-    if (usingDevice)
-      {
-        std::cout << "--------------- Test some images------------------------" << std::endl;
-        for (int i = 0; i < 5; i++)
-          {
-            srand(time(0));
-            int rand_num = rand() % dataset.test_data.cols();
-            Matrix x = dataset.test_data.col(rand_num);
-            dnn.forward(x);
-            Matrix::Index max_index;
-            float max_value = dnn.output().col(0).maxCoeff(&max_index);
-            std::cout << "Get image number: " << rand_num << std::endl;
-            std::cout << "Image has label: " << dataset.test_labels.col(rand_num) << std::endl;
-            std::cout << "Model has prediction:\n " << dnn.output().col(0) << std::endl;
-            std::cout << "Model predict label:\n " << int(max_index) << std::endl;
-          }
-      }
+    std::cout << "--------------- Test some images------------------------" << std::endl;
+    srand(time(0));
+    int rand_num = rand() % dataset.test_data.cols();
+    Matrix x = dataset.test_data.col(rand_num);
+    dnn.forward(x);
+    Matrix::Index max_index;
+    float max_value = dnn.output().col(0).maxCoeff(&max_index);
+    std::cout << "Get image number: " << rand_num << std::endl;
+    std::cout << "Image has label: " << dataset.test_labels.col(rand_num) << std::endl;
+    std::cout << "Model has prediction:\n " << dnn.output().col(0) << std::endl;
+    std::cout << "Model predict label:\n " << int(max_index) << std::endl;
   }
 
   return 0;
