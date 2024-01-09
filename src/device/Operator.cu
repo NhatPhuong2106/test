@@ -404,9 +404,8 @@ void dev_convForward(float *out, float *in, float *wei, float *bias,
           (hw_out - 1) / blockSize.y + 1);
 
   //im2col<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
-  //im2col_opti<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
+  im2col_opti<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   //size_t smem = (ch_in * h_in * w_in * w_ker) * sizeof(float);
-  im2col_share<<<gridSize, blockSize>>>(d_input, d_data, h_in, w_in, ch_in, h_ker, w_ker, h_out, w_out, ch_out, stride);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
 
