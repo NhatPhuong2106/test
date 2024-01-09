@@ -147,16 +147,19 @@ int main(int argc, char *argv[]) {
     std::cout << "Test acc: " << acc << std::endl;
     std::cout << "Time: " << ts << " ms" << std::endl;
     //
-    std::cout << "--------------- Test an image------------------------" << std::endl;
-    std::cout << "Test an image" << std::endl;
-    int rand_num = rand() % dataset.test_data.cols();
-    Matrix x = dataset.test_data.col(rand_num);
-    dnn.forward(x);
-    Matrix::Index max_index;
-    float max_value = dnn.output().col(0).maxCoeff(&max_index);
-    std::cout << "Image has label: " << dataset.test_labels.col(rand_num) << std::endl;
-    std::cout << "Image has prediction:\n " << dnn.output().col(0) << std::endl;
-    std::cout << "Image has predict label:\n " << int(max_index) << std::endl;
+    if (usingDevice)
+      {
+        std::cout << "--------------- Test an image------------------------" << std::endl;
+        std::cout << "Test an image" << std::endl;
+        int rand_num = rand() % dataset.test_data.cols();
+        Matrix x = dataset.test_data.col(rand_num);
+        dnn.forward(x);
+        Matrix::Index max_index;
+        float max_value = dnn.output().col(0).maxCoeff(&max_index);
+        std::cout << "Image has label: " << dataset.test_labels.col(rand_num) << std::endl;
+        std::cout << "Image has prediction:\n " << dnn.output().col(0) << std::endl;
+        std::cout << "Image has predict label:\n " << int(max_index) << std::endl;
+      }
   }
 
   return 0;
