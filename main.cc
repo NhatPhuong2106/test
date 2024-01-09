@@ -146,7 +146,8 @@ int main(int argc, char *argv[]) {
     std::cout << std::endl;
     std::cout << "Test acc: " << acc << std::endl;
     std::cout << "Time: " << ts << " ms" << std::endl;
-    std::cout << "Test an image" << std::endl;
+    //
+    std::cout << "--------------- Test an image------------------------" << std::endl;
     int rand_num = rand() % dataset.test_data.cols();
     Matrix x = dataset.test_data.col(rand_num);
     dnn.forward(x);
