@@ -149,8 +149,9 @@ int main(int argc, char *argv[]) {
     std::cout << "Test an image" << std::endl;
     int rand_num = rand() % dataset.test_data.cols();
     Matrix x = dataset.test_data.col(rand_num);
+    dnn.forward(x);
     std::cout << "Image has label: " << dataset.test_labels.col(rand_num) << std::endl;
-    std::cout << "Image has predict label: " << x.output().col(0) << std::endl;
+    std::cout << "Image has predict label: " << dnn.output().col(0) << std::endl;
   }
 
   return 0;
