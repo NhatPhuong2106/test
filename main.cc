@@ -151,11 +151,11 @@ int main(int argc, char *argv[]) {
     int rand_num = rand() % dataset.test_data.cols();
     Matrix x = dataset.test_data.col(rand_num);
     dnn.forward(x);
-    Matrix res = dnn.output().col(0);
+    Matrix res = dnn.output();
     Matrix::Index max_index;
     float max_value = res.maxCoeff(&max_index);
     std::cout << "Image has label: " << dataset.test_labels.col(rand_num) << std::endl;
-    std::cout << "Image has prediction:\n " << res << std::endl;
+    std::cout << "Image has prediction:\n " << res.col(0) << std::endl;
     std::cout << "Image has predict label:\n " << int(max_index) << std::endl;
   }
 
