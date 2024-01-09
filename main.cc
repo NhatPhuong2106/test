@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
     float max_value = res.maxCoeff(&max_index);
     std::cout << "Image has label: " << dataset.test_labels.col(rand_num) << std::endl;
     std::cout << "Image has prediction:\n " << res << std::endl;
-    std::cout << "Image has predict label:\n " << max_value << std::endl;
+    std::cout << "Image has predict label:\n " << int(max_index) << std::endl;
   }
 
   return 0;
