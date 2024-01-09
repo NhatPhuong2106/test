@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Time: " << ts << " ms" << std::endl;
     //
     std::cout << std::endl << "--------------- Test forward detail------------------------" << std::endl;
-    srand(time(NULL));
+    srand(time(0));
     int rand_num = rand() % dataset.test_data.cols();
     Matrix::Index max_index;
     float max_value = dnn.output().col(rand_num).maxCoeff(&max_index);
